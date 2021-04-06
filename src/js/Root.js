@@ -10,7 +10,7 @@ class Root {
         this.sceneState = {};
 
         // Setup renderer [START]
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: false });
         renderer.setClearColor('#000000');
         const screenSize = this.getScreenResolution();
         renderer.setSize(screenSize.x, screenSize.y);
@@ -64,10 +64,23 @@ class Root {
             useHemiLight: true,
             hemiLightIntensity: 0.15,
             useAmbiLight: true,
-            ambiLightIntensity: 0.5,
+            ambiLightIntensity: 0.4,
             curMaterialPreviewObjects: 'SphereAndPlane2',
             curMaterialSide: 'DoubleSide',
             useIBL: true,
+            envMapIntensity: 1,
+            envMapSource: 'Teide',
+            pbrTexture: 'concrete2',
+            textureSize: 2048,
+            useMatMap: true,
+            useMatBumpMap: true,
+            bumpScale: 0.2,
+            useMatMetalnessMap: true,
+            metalness: 0.15,
+            useMatNormalMap: true,
+            useMatRoughnessMap: true,
+            roughness: 0.19,
+            useMatAoMap: true,
             aoMapIntensity: 0.5,
         };
         this.sceneState.settings = { ...this.sceneState.defaultSettings };
@@ -100,7 +113,6 @@ class Root {
             this.scene.children[0].intensity = value;
         });
         sceneAndDebugFolder.add(this.sceneState.settings, 'useAmbiLight').name('Use Ambi light').onChange((value) => {
-            console.log(this.scene);
             this.scene.children[1].visible = value;
         });
         sceneAndDebugFolder.add(this.sceneState.settings, 'ambiLightIntensity', 0, 2).name('Ambi light intensity').onChange((value) => {

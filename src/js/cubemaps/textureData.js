@@ -1,0 +1,45 @@
+const textureData = {
+    concrete2: {
+        ext: 'png',
+        sizes: [2048, 512],
+        map: 'concrete2_albedo',
+        bumpMap: 'concrete2_Height',
+        metalnessMap: 'concrete2_Metallic',
+        normalMap: 'concrete2_Normal-ogl',
+        roughnessMap: 'concrete2_Roughness',
+        aoMap: 'concrete2-ao',
+        files: [
+            'concrete2_albedo_512.png',
+            'concrete2_albedo.png',
+            'concrete2_Height_512.png',
+            'concrete2_Height.png',
+            'concrete2_Metallic_512.png',
+            'concrete2_Metallic.png',
+            'concrete2_Normal-ogl_512.png',
+            'concrete2_Normal-ogl.png',
+            'concrete2_Roughness_512.png',
+            'concrete2_Roughness.png',
+            'concrete2-ao_512.png',
+            'concrete2-ao.png',
+        ],
+    },
+    darktiles1: {
+        ext: 'png',
+        sizes: [2048],
+        map: 'darktiles1_basecolor',
+        bumpMap: null,
+        metalnessMap: 'darktiles1_metallic',
+        normalMap: 'darktiles1_normal-ogl',
+        roughnessMap: 'darktiles1_roughness',
+        aoMap: 'darktiles1_AO',
+        files: [
+            'darktiles1_AO.png',
+            'darktiles1_basecolor.png',
+            'darktiles1_metallic.png',
+            'darktiles1_normal-ogl.png',
+            'darktiles1_roughness.png',
+        ],
+    },
+};
+
+export default textureData;
