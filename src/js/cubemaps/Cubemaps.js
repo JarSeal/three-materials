@@ -1,6 +1,8 @@
 import * as THREE from 'three';
-import cubeMapData from './cubeMapData.js';
-import textureData from './textureData.js';
+import cubeMapData, { cubeMapPngs } from './cubeMapData';
+import textureData from './textureData';
+import ModelsLoader from '../models/ModelsLoader';
+import modelsData from '../models/modelsData';
 
 class Cubemaps {
     constructor(scene, sceneState) {
@@ -9,21 +11,19 @@ class Cubemaps {
         this.cubeLoader = new THREE.CubeTextureLoader();
         this.textureLoader = new THREE.TextureLoader();
 
-        // const defaultMapPath = '/images/cubemaps/LancelottiChapel/';
+        this.ModelsLoader = new ModelsLoader(scene, sceneState);
 
         this._loadObjects(scene, [0, 0, 0]);
         this._createGui(sceneState);
     }
 
-    // _loadCubemaps(path) {
-    //     // const urls = [ path+'posx_256.jpg', path+'negx_256.jpg', path+'posy_256.jpg', path+'negy_256.jpg', path+'posz_256.jpg', path+'negz_256.jpg' ];
-    //     const urls = [ path+'posx.jpg', path+'negx.jpg', path+'posy.jpg', path+'negy.jpg', path+'posz.jpg', path+'negz.jpg' ];
-    //     return this.loader.load(urls);
-    // }
-
     _updateEnvMap(newSource) {
         const path = '/images/cubemaps/' + newSource + '/';
-        const urls = [ path+'posx.jpg', path+'negx.jpg', path+'posy.jpg', path+'negy.jpg', path+'posz.jpg', path+'negz.jpg' ];
+        let urlExt = '.jpg';
+        if(cubeMapPngs.includes(newSource)) {
+            urlExt = '.png';
+        }
+        const urls = [ path+'posx'+urlExt, path+'negx'+urlExt, path+'posy'+urlExt, path+'negy'+urlExt, path+'posz'+urlExt, path+'negz'+urlExt ];
 
         this.cubeLoader.load(urls, (cubeMap) => {
             this.sceneState.curCubeMap.dispose();
@@ -39,6 +39,12 @@ class Cubemaps {
             }
             if(this.sceneState.settings.showEnvMapBackground) {
                 this.scene.background = cubeMap;
+            }
+            if(this.sceneState.envObject) {
+                this.sceneState.envObject.material.envMap = ibl.texture;
+            }
+            if(this.sceneState.envObject2) {
+                this.sceneState.envObject2.material.envMap = ibl.texture;
             }
         });
     }
@@ -112,6 +118,9 @@ class Cubemaps {
             const blur = new THREE.PMREMGenerator(this.sceneState.renderer);
             const ibl = blur.fromCubemap(cubeMap);
             this.sceneState.curIBL = ibl;
+            if(this.sceneState.settings.envObject && this.sceneState.settings.envObject !== 'None') {
+                this.ModelsLoader.loadEnv(this.sceneState.settings.envObject);
+            }
             this._loadObjectMaterials(this.sceneState.settings.pbrTexture);
             const settings = this.sceneState.settings;
             const mat = new THREE.MeshStandardMaterial({
