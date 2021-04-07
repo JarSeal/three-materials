@@ -58,18 +58,18 @@ class Root {
         this.sceneState.getScreenResolution = this.getScreenResolution;
         this.sceneState.defaultSettings = {
             showStats: true,
-            showAxesHelper: true,
+            showAxesHelper: false,
             showEnvMapBackground: true,
             sceneBackColor: '#000000',
-            useHemiLight: true,
+            useHemiLight: false,
             hemiLightIntensity: 0.15,
             useAmbiLight: true,
-            ambiLightIntensity: 0.5,
-            curMaterialPreviewObjects: 'SphereAndPlane2',
+            ambiLightIntensity: 1,
+            curMaterialPreviewObjects: 'None',
             curMaterialSide: 'DoubleSide',
             useIBL: true,
-            envMapIntensity: 1,
-            envMapSource: 'Teide',
+            envMapIntensity: 3,
+            envMapSource: 'Stars4_1024',
             envObject: 'cargoHall',
             pbrTexture: 'concrete2',
             textureSize: 2048,
@@ -125,7 +125,7 @@ class Root {
     runApp(scene, camera) {
 
         // Main app logic [START]
-        camera.position.set(1, 1, 10);
+        camera.position.set(15, 15, 15);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         // Init Cubemaps
@@ -187,6 +187,7 @@ class Root {
         this.scene.children[0].intensity = this.sceneState.settings.hemiLightIntensity;
         this.scene.children[1].visible = this.sceneState.settings.useAmbiLight;
         this.scene.children[1].intensity = this.sceneState.settings.ambiLightIntensity;
+        if(!this.sceneState.settings.showAxesHelper) this.axesHelper.visible = false;
     }
 }
 

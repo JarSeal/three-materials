@@ -41,7 +41,7 @@ class Cubemaps {
                 this.scene.background = cubeMap;
             }
             if(this.sceneState.envObject) {
-                this.sceneState.envObject.material.envMap = ibl.texture;
+                // this.sceneState.envObject.material.envMap = ibl.texture;
             }
             if(this.sceneState.envObject2) {
                 this.sceneState.envObject2.material.envMap = ibl.texture;
@@ -109,7 +109,11 @@ class Cubemaps {
 
     _loadObjects(scene, pos) {
         const path = '/images/cubemaps/' + this.sceneState.settings.envMapSource + '/';
-        const urls = [ path+'posx.jpg', path+'negx.jpg', path+'posy.jpg', path+'negy.jpg', path+'posz.jpg', path+'negz.jpg' ];
+        let urlExt = '.jpg';
+        if(cubeMapPngs.includes(this.sceneState.settings.envMapSource)) {
+            urlExt = '.png';
+        }
+        const urls = [ path+'posx'+urlExt, path+'negx'+urlExt, path+'posy'+urlExt, path+'negy'+urlExt, path+'posz'+urlExt, path+'negz'+urlExt ];
         this.cubeLoader.load(urls, (cubeMap) => {
             this.sceneState.curCubeMap = cubeMap;
             if(this.sceneState.settings.showEnvMapBackground) {
@@ -210,8 +214,12 @@ class Cubemaps {
             const mat = this.sceneState.curMat;
             if(value) {
                 mat.envMap = this.sceneState.curIBL.texture;
+                if(this.sceneState.envObject2) {
+                    this.sceneState.envObject2.material.envMap = this.sceneState.curIBL.texture;
+                }
             } else {
                 mat.envMap = null;
+                this.sceneState.envObject2.material.envMap = null;
             }
         });
         envMapFolder.add(this.sceneState.settings, 'envMapSource', cubeMapData).name('Environment map').onChange((value) => {
@@ -221,6 +229,10 @@ class Cubemaps {
             const mat = this.sceneState.curMat;
             mat.envMapIntensity = value;
             mat.needsUpdate = true;
+            if(this.sceneState.envObject2) {
+                this.sceneState.envObject2.material.envMapIntensity = value;
+                this.sceneState.envObject2.material.needsUpdate = true;
+            }
         });
 
         const materialFolder = sceneState.gui.addFolder('Material');

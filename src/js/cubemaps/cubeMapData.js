@@ -12,12 +12,18 @@ const cubeMapData = [
     'Sorsele3',
     'Tallinn',
     'Teide',
-    'Stars1',
-    'Stars2',
+    'Stars1_4096',
+    'Stars2_2048',
+    'Stars3_2048',
+    'Stars4_1024',
+    'Stars5_512',
 ];
 export const cubeMapPngs = [
-    'Stars1',
-    'Stars2',
+    'Stars1_4096',
+    'Stars2_2048',
+    'Stars3_2048',
+    'Stars4_1024',
+    'Stars5_512',
 ];
 
 export default cubeMapData;

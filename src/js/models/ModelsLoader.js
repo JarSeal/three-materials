@@ -23,7 +23,6 @@ class ModelsLoader {
         });
         if(data.normalMap) normalMap = this.textureLoader.load(curPath + data.normalMap, m => {
             m.flipY = false;
-            console.log('LOADED');
         });
         if(data.normalMap2) normalMap2 = this.textureLoader.load(curPath + data.normalMap2, m => {
             m.flipY = false;
@@ -33,8 +32,8 @@ class ModelsLoader {
             if(data.xRotation) mesh.rotation.x = data.xRotation;
             if(data.position) mesh.position.set(data.position[0], data.position[1], data.position[2]);
             if(diffuseMap) mesh.material.map = diffuseMap;
-            if(normalMap) mesh.material.normalMap = normalMap;
-            mesh.material.envMap = this.sceneState.curIBL.texture;
+            // if(normalMap) mesh.material.normalMap = normalMap;
+            // mesh.material.envMap = this.sceneState.curIBL.texture;
             mesh.material.metalness = 0;
             mesh.material.roughness = 0.15;
             if(this.sceneState.envObject) {
@@ -58,8 +57,8 @@ class ModelsLoader {
                 if(diffuseMap2) mesh.material.map = diffuseMap2;
                 if(normalMap2) mesh.material.normalMap = normalMap2;
                 mesh.material.envMap = this.sceneState.curIBL.texture;
-                mesh.material.metalness = 0;
-                mesh.material.roughness = 0.15;
+                mesh.material.metalness = 0.5;
+                mesh.material.roughness = 0.2;
                 if(this.sceneState.envObject2) {
                     if(this.sceneState.envObject2.material.map) this.sceneState.envObject.material.map.dispose();
                     if(this.sceneState.envObject2.material.normalMap) this.sceneState.envObject.material.normalMap.dispose();
