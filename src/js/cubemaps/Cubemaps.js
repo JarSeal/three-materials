@@ -138,18 +138,21 @@ class Cubemaps {
             const curSetting = this.sceneState.settings.curMaterialPreviewObjects;
 
             const boxGeo = new THREE.BoxBufferGeometry(1, 1, 1);
+            boxGeo.attributes.uv2 = boxGeo.attributes.uv;
             const boxMesh = new THREE.Mesh(boxGeo, mat);
             boxMesh.position.set(pos[0], pos[1], pos[2]);
             boxMesh.visible = curSetting === 'Box' || curSetting === 'BoxAndPlane1' || curSetting === 'BoxAndPlane2';
             scene.add(boxMesh);
 
             const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
+            sphereGeo.attributes.uv2 = sphereGeo.attributes.uv;
             const sphereMesh = new THREE.Mesh(sphereGeo, mat);
             sphereMesh.position.set(pos[0], pos[1], pos[2]);
             sphereMesh.visible = curSetting === 'Sphere' || curSetting === 'SphereAndPlane1' || curSetting === 'SphereAndPlane2';
             scene.add(sphereMesh);
 
             const planeGeo = new THREE.PlaneBufferGeometry(5, 5, 1);
+            planeGeo.attributes.uv2 = planeGeo.attributes.uv;
             const planeMesh = new THREE.Mesh(planeGeo, mat);
             planeMesh.position.set(pos[0], pos[1], pos[2]);
             if(curSetting === 'Plane1' || curSetting === 'BoxAndPlane1' || curSetting === 'SphereAndPlane1') {
