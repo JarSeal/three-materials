@@ -98,9 +98,6 @@ class Root {
         sceneAndDebugFolder.add(this.sceneState.settings, 'showAxesHelper').name('Show axes helper').onChange((value) => {
             this.axesHelper.visible = value;
         });
-        sceneAndDebugFolder.add(this.sceneState.settings, 'showEnvMapBackground').name('Show envmap bckgrd').onChange((value) => {
-            scene.background = value ? this.sceneState.curCubeMap : new THREE.Color(this.sceneState.settings.sceneBackColor);
-        });
         sceneAndDebugFolder.addColor(this.sceneState.settings, 'sceneBackColor').name('Scene back color').onChange((value) => {
             if(!this.sceneState.settings.showEnvMapBackground) {
                 scene.background = new THREE.Color(value);

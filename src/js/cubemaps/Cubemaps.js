@@ -194,6 +194,9 @@ class Cubemaps {
 
         const envMapFolder = sceneState.gui.addFolder('Env Map');
         envMapFolder.open();
+        envMapFolder.add(this.sceneState.settings, 'showEnvMapBackground').name('Show envmap bckgrd').onChange((value) => {
+            this.scene.background = value ? this.sceneState.curCubeMap : new THREE.Color(this.sceneState.settings.sceneBackColor);
+        });
         envMapFolder.add(this.sceneState.settings, 'useIBL').name('Use IBL').onChange((value) => {
             const mat = this.sceneState.curMat;
             if(value) {
