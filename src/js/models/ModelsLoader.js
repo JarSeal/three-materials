@@ -1,4 +1,4 @@
-import { TextureLoader } from 'three';
+import { TextureLoader, CubeTextureLoader, PMREMGenerator } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import models from './modelsData';
 
@@ -9,21 +9,22 @@ class ModelsLoader {
         this.envPath = '/models/environments/';
         this.loader = new GLTFLoader();
         this.textureLoader = new TextureLoader();
+        this.cubeLoader = new CubeTextureLoader();
     }
 
     loadEnv(key) {
         const data = models[key];
         const curPath = this.envPath + key + '/';
-        let diffuseMap, diffuseMap2, normalMap, normalMap2;
+        let diffuseMap, diffuseMap2, /*normalMap,*/ normalMap2;
         if(data.map) diffuseMap = this.textureLoader.load(curPath + data.map, m => {
             m.flipY = false;
         });
         if(data.map2) diffuseMap2 = this.textureLoader.load(curPath + data.map2, m => {
             m.flipY = false;
         });
-        if(data.normalMap) normalMap = this.textureLoader.load(curPath + data.normalMap, m => {
-            m.flipY = false;
-        });
+        // if(data.normalMap) normalMap = this.textureLoader.load(curPath + data.normalMap, m => {
+        //     m.flipY = false;
+        // });
         if(data.normalMap2) normalMap2 = this.textureLoader.load(curPath + data.normalMap2, m => {
             m.flipY = false;
         });
@@ -33,12 +34,24 @@ class ModelsLoader {
             if(data.position) mesh.position.set(data.position[0], data.position[1], data.position[2]);
             if(diffuseMap) mesh.material.map = diffuseMap;
             // if(normalMap) mesh.material.normalMap = normalMap;
-            // mesh.material.envMap = this.sceneState.curIBL.texture;
+            if(data.envMap) {
+                let urlExt = '.png';
+                if(data.envMapExt) urlExt = '.' + data.envMapExt;
+                const urls = [ curPath+'posx'+urlExt, curPath+'negx'+urlExt, curPath+'posy'+urlExt, curPath+'negy'+urlExt, curPath+'posz'+urlExt, curPath+'negz'+urlExt ];
+                this.cubeLoader.load(urls, (cubeMap) => {
+                    const blur = new PMREMGenerator(this.sceneState.renderer);
+                    this.sceneState.envObjectEnvMap = blur.fromCubemap(cubeMap);
+                    if(this.sceneState.settings.useIBL) {
+                        this.sceneState.curMat.envMap = this.sceneState.envObjectEnvMap.texture;
+                    }
+                });
+            }
             mesh.material.metalness = 0;
             mesh.material.roughness = 0.15;
             if(this.sceneState.envObject) {
                 if(this.sceneState.envObject.material.map) this.sceneState.envObject.material.map.dispose();
                 if(this.sceneState.envObject.material.normalMap) this.sceneState.envObject.material.normalMap.dispose();
+                if(this.sceneState.envObject.material.envMap) this.sceneState.envObject.material.envMap.dispose();
                 this.sceneState.envObject.material.dispose();
                 this.scene.remove(this.sceneState.envObject);
             }
@@ -57,11 +70,13 @@ class ModelsLoader {
                 if(diffuseMap2) mesh.material.map = diffuseMap2;
                 if(normalMap2) mesh.material.normalMap = normalMap2;
                 mesh.material.envMap = this.sceneState.curIBL.texture;
+                mesh.material.envMapIntensity = this.sceneState.settings.envMapIntensity;
                 mesh.material.metalness = 0.5;
                 mesh.material.roughness = 0.2;
                 if(this.sceneState.envObject2) {
                     if(this.sceneState.envObject2.material.map) this.sceneState.envObject.material.map.dispose();
                     if(this.sceneState.envObject2.material.normalMap) this.sceneState.envObject.material.normalMap.dispose();
+                    if(this.sceneState.envObject2.material.envMap) this.sceneState.envObject2.material.envMap.dispose();
                     this.sceneState.envObject2.material.dispose();
                     this.scene.remove(this.sceneState.envObject2);
                 }
@@ -73,6 +88,20 @@ class ModelsLoader {
                 console.error('Model 2', error);
             });
         }
+    }
+
+    createGui(sceneState) {
+        const modelKeys = Object.keys(models);
+        const envObjFolder = sceneState.gui.addFolder('Env Object');
+        envObjFolder.open();
+        envObjFolder.add(sceneState.settings, 'showEnvObject').name('Show env object').onChange((value) => {
+            if(sceneState.envObject) sceneState.envObject.visible = value;
+            if(sceneState.envObject2) sceneState.envObject2.visible = value;
+        });
+        envObjFolder.add(sceneState.settings, 'envObject', modelKeys).name('Env object').onChange((value) => {
+            if(sceneState.settings.envObject === value) return;
+            this.loadEnv(value);
+        });
     }
 }
 

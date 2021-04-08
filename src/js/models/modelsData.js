@@ -9,6 +9,7 @@ const models = {
         normalMap: 'interior-normal.png',
         normalMap2: 'exterior-normal.png',
         envMap: null,
+        envMapExt: 'png',
         envMap2: null,
     }
 };

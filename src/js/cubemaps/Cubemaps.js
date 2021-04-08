@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import cubeMapData, { cubeMapPngs } from './cubeMapData';
 import textureData from './textureData';
 import ModelsLoader from '../models/ModelsLoader';
-import modelsData from '../models/modelsData';
 
 class Cubemaps {
     constructor(scene, sceneState) {
@@ -13,8 +12,9 @@ class Cubemaps {
 
         this.ModelsLoader = new ModelsLoader(scene, sceneState);
 
-        this._loadObjects(scene, [0, 0, 0]);
         this._createGui(sceneState);
+        this._loadObjects(scene, [0, 0, 0]);
+        this.ModelsLoader.createGui(sceneState);
     }
 
     _updateEnvMap(newSource) {
@@ -128,12 +128,12 @@ class Cubemaps {
             this._loadObjectMaterials(this.sceneState.settings.pbrTexture);
             const settings = this.sceneState.settings;
             const mat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0xcccccc),
+                color: this.sceneState.settings.useMatColor ? new THREE.Color(this.sceneState.settings.matColor) : null,
                 map: settings.useMatMap ? this.sceneState.curMatMaps.map : null,
                 bumpMap: settings.useMatBumpMap ? this.sceneState.curMatMaps.bumpMap : null,
                 bumpScale: this.sceneState.settings.bumpScale,
                 normalMap: settings.useMatNormalMap ? this.sceneState.curMatMaps.normalMap : null,
-                envMap: this.sceneState.settings.useIBL ? ibl.texture : null,
+                envMap: this._setObjectEnvMap(this.sceneState, ibl),
                 envMapIntensity: this.sceneState.settings.envMapIntensity,
                 metalness: this.sceneState.settings.metalness,
                 metalnessMap: settings.useMatMetalnessMap ? this.sceneState.curMatMaps.metalnessMap : null,
@@ -183,8 +183,20 @@ class Cubemaps {
         });
     }
 
+    _setObjectEnvMap(sceneState, ibl) {
+        if(sceneState.settings.useIBL) {
+            if(sceneState.envObject && sceneState.envObjectEnvMap) {
+                return null; // will be set in the ModelsLoader
+            } else {
+                return ibl.texture;
+            }
+        } else {
+            return null;
+        }
+    }
+
     _createGui(sceneState) {
-        const objectsFolder = sceneState.gui.addFolder('Object(s)');
+        const objectsFolder = sceneState.gui.addFolder('Object');
         objectsFolder.add(this.sceneState.settings, 'curMaterialPreviewObjects', [ 'None', 'Box', 'Sphere', 'Plane1', 'Plane2', 'BoxAndPlane1', 'BoxAndPlane2', 'SphereAndPlane1', 'SphereAndPlane2' ]).name('Mat prev object(s)').onChange((value) => {
             this.sceneState.matPrevObjects.box.visible = value === 'Box' || value === 'BoxAndPlane1' || value === 'BoxAndPlane2';
             this.sceneState.matPrevObjects.sphere.visible = value === 'Sphere' || value === 'SphereAndPlane1' || value === 'SphereAndPlane2';
@@ -205,41 +217,25 @@ class Cubemaps {
             mat.needsUpdate = true;
         });
 
-        const envMapFolder = sceneState.gui.addFolder('Env Map');
-        envMapFolder.open();
-        envMapFolder.add(this.sceneState.settings, 'showEnvMapBackground').name('Show envmap bckgrd').onChange((value) => {
-            this.scene.background = value ? this.sceneState.curCubeMap : new THREE.Color(this.sceneState.settings.sceneBackColor);
-        });
-        envMapFolder.add(this.sceneState.settings, 'useIBL').name('Use IBL').onChange((value) => {
-            const mat = this.sceneState.curMat;
-            if(value) {
-                mat.envMap = this.sceneState.curIBL.texture;
-                if(this.sceneState.envObject2) {
-                    this.sceneState.envObject2.material.envMap = this.sceneState.curIBL.texture;
-                }
-            } else {
-                mat.envMap = null;
-                this.sceneState.envObject2.material.envMap = null;
-            }
-        });
-        envMapFolder.add(this.sceneState.settings, 'envMapSource', cubeMapData).name('Environment map').onChange((value) => {
-            this._updateEnvMap(value);
-        });
-        envMapFolder.add(this.sceneState.settings, 'envMapIntensity', 0, 5).name('Env map intensity').onChange((value) => {
-            const mat = this.sceneState.curMat;
-            mat.envMapIntensity = value;
-            mat.needsUpdate = true;
-            if(this.sceneState.envObject2) {
-                this.sceneState.envObject2.material.envMapIntensity = value;
-                this.sceneState.envObject2.material.needsUpdate = true;
-            }
-        });
-
-        const materialFolder = sceneState.gui.addFolder('Material');
+        const materialFolder = sceneState.gui.addFolder('Object Material');
         materialFolder.open();
         const keys = Object.keys(textureData);
         materialFolder.add(this.sceneState.settings, 'pbrTexture', keys).name('PBR material').onChange((value) => {
             this._loadObjectMaterials(value);
+        });
+        materialFolder.add(this.sceneState.settings, 'useMatColor').name('Material color').onChange((value) => {
+            if(!value) {
+                this.sceneState.curMat.color = new THREE.Color(0xffffff);
+            } else {
+                this.sceneState.curMat.color = new THREE.Color(this.sceneState.settings.matColor);
+            }
+            this.sceneState.curMat.needsUpdate = true;
+        });
+        materialFolder.addColor(this.sceneState.settings, 'matColor').name('Material color').onChange((value) => {
+            this.sceneState.curMat.color = this.sceneState.settings.useMatColor
+                ? new THREE.Color(value)
+                : null;
+            this.sceneState.curMat.needsUpdate = true;
         });
         materialFolder.add(this.sceneState.settings, 'useMatMap').name('Use map (color)').onChange((value) => {
             this.sceneState.curMat.map = value ? this.sceneState.curMatMaps.map : null;
@@ -284,6 +280,36 @@ class Cubemaps {
             const mat = this.sceneState.curMat;
             mat.aoMapIntensity = value;
             mat.needsUpdate = true;
+        });
+
+        const envMapFolder = sceneState.gui.addFolder('Env Map');
+        envMapFolder.open();
+        envMapFolder.add(this.sceneState.settings, 'showEnvMapBackground').name('Show envmap bckgrd').onChange((value) => {
+            this.scene.background = value ? this.sceneState.curCubeMap : new THREE.Color(this.sceneState.settings.sceneBackColor);
+        });
+        envMapFolder.add(this.sceneState.settings, 'useIBL').name('Use IBL').onChange((value) => {
+            const mat = this.sceneState.curMat;
+            if(value) {
+                mat.envMap = this.sceneState.curIBL.texture;
+                if(this.sceneState.envObject2) {
+                    this.sceneState.envObject2.material.envMap = this.sceneState.curIBL.texture;
+                }
+            } else {
+                mat.envMap = null;
+                this.sceneState.envObject2.material.envMap = null;
+            }
+        });
+        envMapFolder.add(this.sceneState.settings, 'envMapSource', cubeMapData).name('Environment map').onChange((value) => {
+            this._updateEnvMap(value);
+        });
+        envMapFolder.add(this.sceneState.settings, 'envMapIntensity', 0, 5).name('Env map intensity').onChange((value) => {
+            const mat = this.sceneState.curMat;
+            mat.envMapIntensity = value;
+            mat.needsUpdate = true;
+            if(this.sceneState.envObject2) {
+                this.sceneState.envObject2.material.envMapIntensity = value;
+                this.sceneState.envObject2.material.needsUpdate = true;
+            }
         });
     }
 }

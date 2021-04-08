@@ -57,6 +57,7 @@ class Root {
         this.sceneState.resizeFns = [this.resize],
         this.sceneState.getScreenResolution = this.getScreenResolution;
         this.sceneState.defaultSettings = {
+            // Scene and Debug
             showStats: true,
             showAxesHelper: false,
             showEnvMapBackground: true,
@@ -65,14 +66,16 @@ class Root {
             hemiLightIntensity: 0.15,
             useAmbiLight: true,
             ambiLightIntensity: 1,
-            curMaterialPreviewObjects: 'None',
+
+            // Object
+            curMaterialPreviewObjects: 'Sphere',
             curMaterialSide: 'DoubleSide',
-            useIBL: true,
-            envMapIntensity: 3,
-            envMapSource: 'Stars4_1024',
-            envObject: 'cargoHall',
+
+            // Object material
             pbrTexture: 'concrete2',
             textureSize: 2048,
+            useMatColor: false,
+            matColor: '#cccccc',
             useMatMap: true,
             useMatBumpMap: true,
             bumpScale: 0.2,
@@ -83,6 +86,15 @@ class Root {
             roughness: 0.19,
             useMatAoMap: true,
             aoMapIntensity: 0.5,
+
+            // Env Map
+            useIBL: true,
+            envMapIntensity: 3,
+            envMapSource: 'Stars2_2048',
+
+            // Env Object
+            showEnvObject: true,
+            envObject: 'cargoHall',
         };
         this.sceneState.settings = { ...this.sceneState.defaultSettings };
         this._setupLights();
