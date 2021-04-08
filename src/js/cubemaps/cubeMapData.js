@@ -17,6 +17,7 @@ const cubeMapData = [
     'Stars3_2048',
     'Stars4_1024',
     'Stars5_512',
+    'CargoHall',
 ];
 export const cubeMapPngs = [
     'Stars1_4096',
@@ -24,6 +25,7 @@ export const cubeMapPngs = [
     'Stars3_2048',
     'Stars4_1024',
     'Stars5_512',
+    'CargoHall',
 ];
 
 export default cubeMapData;

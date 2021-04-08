@@ -33,7 +33,7 @@ class Cubemaps {
             this.sceneState.curIBL.texture.dispose();
             this.sceneState.curIBL.dispose();
             this.sceneState.curIBL = ibl;
-            if(this.sceneState.settings.useIBL) {
+            if(this.sceneState.settings.useIBL && !this.sceneState.envObjectEnvMap) {
                 const mat = this.sceneState.curMat;
                 mat.envMap = ibl.texture;
             }
@@ -290,13 +290,18 @@ class Cubemaps {
         envMapFolder.add(this.sceneState.settings, 'useIBL').name('Use IBL').onChange((value) => {
             const mat = this.sceneState.curMat;
             if(value) {
-                mat.envMap = this.sceneState.curIBL.texture;
+                if(this.sceneState.envObject && this.sceneState.envObjectEnvMap) {
+                    mat.envMap = this.sceneState.envObjectEnvMap.texture;
+                    mat.envMapIntensity = 1;
+                } else {
+                    mat.envMap = this.sceneState.curIBL.texture;
+                }
                 if(this.sceneState.envObject2) {
                     this.sceneState.envObject2.material.envMap = this.sceneState.curIBL.texture;
                 }
             } else {
                 mat.envMap = null;
-                this.sceneState.envObject2.material.envMap = null;
+                if(this.sceneState.envObject2) this.sceneState.envObject2.material.envMap = null;
             }
         });
         envMapFolder.add(this.sceneState.settings, 'envMapSource', cubeMapData).name('Environment map').onChange((value) => {
@@ -304,7 +309,11 @@ class Cubemaps {
         });
         envMapFolder.add(this.sceneState.settings, 'envMapIntensity', 0, 5).name('Env map intensity').onChange((value) => {
             const mat = this.sceneState.curMat;
-            mat.envMapIntensity = value;
+            if(this.sceneState.envObject && this.sceneState.envObjectEnvMap) {
+                mat.envMapIntensity = 1;
+            } else {
+                mat.envMapIntensity = value;
+            }
             mat.needsUpdate = true;
             if(this.sceneState.envObject2) {
                 this.sceneState.envObject2.material.envMapIntensity = value;

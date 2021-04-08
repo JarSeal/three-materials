@@ -85,7 +85,7 @@ class Root {
             useMatRoughnessMap: true,
             roughness: 0.19,
             useMatAoMap: true,
-            aoMapIntensity: 0.5,
+            aoMapIntensity: 1,
 
             // Env Map
             useIBL: true,

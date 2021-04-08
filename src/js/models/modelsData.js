@@ -8,7 +8,7 @@ const models = {
         map2: 'exterior-baked.png',
         normalMap: 'interior-normal.png',
         normalMap2: 'exterior-normal.png',
-        envMap: null,
+        envMap: true,
         envMapExt: 'png',
         envMap2: null,
     }
