@@ -114,6 +114,13 @@ class ModelsLoader {
             }
             this.loadEnv(value);
         });
+        envObjFolder.add(sceneState.settings, 'envObjIBL').name('Env obj IBL').onChange((value) => {
+            if(value) {
+                if(sceneState.envObject2) sceneState.envObject2.material.envMap = sceneState.curIBL.texture;
+            } else {
+                if(sceneState.envObject2) sceneState.envObject2.material.envMap = null;
+            }
+        });
     }
 }
 

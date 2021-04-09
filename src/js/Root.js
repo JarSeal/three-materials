@@ -89,12 +89,13 @@ class Root {
 
             // Env Map
             useIBL: true,
-            envMapIntensity: 3,
+            envMapIntensity: 2,
             envMapSource: 'Stars2_2048',
 
             // Env Object
             showEnvObject: true,
             envObject: 'cargoHall',
+            envObjIBL: true,
         };
         this.sceneState.settings = { ...this.sceneState.defaultSettings };
         this._setupLights();
@@ -165,6 +166,13 @@ class Root {
         sceneState.camera.updateProjectionMatrix();
         renderer.setSize(width, height);
         renderer.setPixelRatio(pixelRatio);
+        if(width > 1024) {
+            const keys = Object.keys(sceneState.gui.__folders);
+            keys.forEach(key => {
+                sceneState.gui.__folders[key].open();
+            });
+            console.log('test', keys);
+        }
     }
 
     _initResizer() {

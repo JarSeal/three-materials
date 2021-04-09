@@ -20,9 +20,7 @@ class Cubemaps {
     _updateEnvMap(newSource) {
         const path = '/images/cubemaps/' + newSource + '/';
         let urlExt = '.jpg';
-        if(cubeMapPngs.includes(newSource)) {
-            urlExt = '.png';
-        }
+        if(cubeMapPngs.includes(newSource)) urlExt = '.png';
         const urls = [ path+'posx'+urlExt, path+'negx'+urlExt, path+'posy'+urlExt, path+'negy'+urlExt, path+'posz'+urlExt, path+'negz'+urlExt ];
 
         this.cubeLoader.load(urls, (cubeMap) => {
