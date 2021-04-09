@@ -8,9 +8,10 @@ import Cubemaps from './cubemaps/Cubemaps';
 class Root {
     constructor() {
         this.sceneState = {};
+        this._getQueryParams();
 
         // Setup renderer [START]
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
+        const renderer = new THREE.WebGLRenderer({ antialias: this.sceneState.aa || false });
         renderer.setClearColor('#000000');
         const screenSize = this.getScreenResolution();
         renderer.setSize(screenSize.x, screenSize.y);
@@ -208,6 +209,12 @@ class Root {
         this.scene.children[1].visible = this.sceneState.settings.useAmbiLight;
         this.scene.children[1].intensity = this.sceneState.settings.ambiLightIntensity;
         if(!this.sceneState.settings.showAxesHelper) this.axesHelper.visible = false;
+    }
+
+    _getQueryParams() {
+        const queryString = window.location.search;
+        const params = new URLSearchParams(queryString);
+        if(params.get('aa') === '1') this.sceneState.aa = true;
     }
 }
 
