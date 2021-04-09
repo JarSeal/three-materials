@@ -97,6 +97,7 @@ class Root {
             showEnvObject: true,
             envObject: 'cargoHall',
             envObjIBL: true,
+            envInnerObjIBL: false,
         };
         this.sceneState.settings = { ...this.sceneState.defaultSettings };
         this._setupLights();
@@ -172,7 +173,6 @@ class Root {
             keys.forEach(key => {
                 sceneState.gui.__folders[key].open();
             });
-            console.log('test', keys);
         }
     }
 

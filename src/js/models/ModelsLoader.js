@@ -16,16 +16,16 @@ class ModelsLoader {
         if(key === 'None') return;
         const data = models[key];
         const curPath = this.envPath + key + '/';
-        let diffuseMap, diffuseMap2, /*normalMap,*/ normalMap2;
+        let diffuseMap, diffuseMap2, normalMap, normalMap2;
         if(data.map) diffuseMap = this.textureLoader.load(curPath + data.map, m => {
             m.flipY = false;
         });
         if(data.map2) diffuseMap2 = this.textureLoader.load(curPath + data.map2, m => {
             m.flipY = false;
         });
-        // if(data.normalMap) normalMap = this.textureLoader.load(curPath + data.normalMap, m => {
-        //     m.flipY = false;
-        // });
+        if(data.normalMap) normalMap = this.textureLoader.load(curPath + data.normalMap, m => {
+            m.flipY = false;
+        });
         if(data.normalMap2) normalMap2 = this.textureLoader.load(curPath + data.normalMap2, m => {
             m.flipY = false;
         });
@@ -34,12 +34,13 @@ class ModelsLoader {
             if(data.xRotation) mesh.rotation.x = data.xRotation;
             if(data.position) mesh.position.set(data.position[0], data.position[1], data.position[2]);
             if(diffuseMap) mesh.material.map = diffuseMap;
-            // if(normalMap) mesh.material.normalMap = normalMap;
+            if(normalMap) mesh.material.normalMap = normalMap;
             this.sceneState.envObjectEnvMap = null;
             if(data.envMap) {
                 let urlExt = '.png';
                 if(data.envMapExt) urlExt = '.' + data.envMapExt;
                 const path = '/images/cubemaps/' + key + '/';
+                // Object cubemap
                 const urls = [ path+'posx'+urlExt, path+'negx'+urlExt, path+'posy'+urlExt, path+'negy'+urlExt, path+'posz'+urlExt, path+'negz'+urlExt ];
                 this.cubeLoader.load(urls, (cubeMap) => {
                     const blur = new PMREMGenerator(this.sceneState.renderer);
@@ -47,11 +48,19 @@ class ModelsLoader {
                     if(this.sceneState.settings.useIBL) {
                         this.sceneState.curMat.envMap = this.sceneState.envObjectEnvMap.texture;
                         this.sceneState.curMat.envMapIntensity = 1;
+                        if(this.sceneState.settings.envInnerObjIBL) {
+                            mesh.material.envMap = this.sceneState.envObjectEnvMap.texture;
+                        }
                     }
                 });
             }
-            mesh.material.metalness = 0;
-            mesh.material.roughness = 0.15;
+            if(this.sceneState.settings.useIBL && this.sceneState.settings.envInnerObjIBL) {
+                mesh.material.metalness = 0.15;
+                mesh.material.roughness = 0.4;
+            } else {
+                mesh.material.metalness = 0;
+                mesh.material.roughness = 0;
+            }
             this._removeEnvObject();
             this.scene.add(mesh);
             this.sceneState.envObject = mesh;
@@ -119,6 +128,17 @@ class ModelsLoader {
                 if(sceneState.envObject2) sceneState.envObject2.material.envMap = sceneState.curIBL.texture;
             } else {
                 if(sceneState.envObject2) sceneState.envObject2.material.envMap = null;
+            }
+        });
+        envObjFolder.add(sceneState.settings, 'envInnerObjIBL').name('Env inner obj IBL').onChange((value) => {
+            if(value) {
+                if(sceneState.envObject) sceneState.envObject.material.envMap = this.sceneState.envObjectEnvMap.texture;
+                sceneState.envObject.material.metalness = 0.25;
+                sceneState.envObject.material.roughness = 0.4;
+            } else {
+                if(sceneState.envObject) sceneState.envObject.material.envMap = null;
+                sceneState.envObject.material.metalness = 0;
+                sceneState.envObject.material.roughness = 0;
             }
         });
     }
